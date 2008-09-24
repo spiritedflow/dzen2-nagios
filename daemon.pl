@@ -24,9 +24,6 @@ my $base = $ENV{'HOME'}.'/.dzen2/nagios';
 my $dump = 0;
 my $dzen_fd;
 
-sub format_status; 
-sub refresh_status;
-
 # [ CODE ]
 
 # Read cmdline arguments
@@ -72,8 +69,8 @@ unless ($dump) {
 
 # Main loop: 
 while () {
-	my $status = common::refresh_status ($spool_dir);
-	my $str = common::format_status ($status);
+	my $status = &common::refresh_status ($spool_dir);
+	my $str = &common::format_status ($status);
 	
 	unless ($dump) {
 		print $dzen_fd $str;
