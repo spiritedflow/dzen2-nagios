@@ -1,10 +1,10 @@
-== About == 
+== DESCRIPTION:
 
 This bunch of scripts are for analizing emails of Nagios
 and for notifying of the events using popup dialogs
 and dzen2 status bar.
 
-== Scripts ==
+== SCRIPTS:
 
 * parser.pl:
  Is for reading and parsing emails from Nagios.
@@ -20,7 +20,14 @@ and dzen2 status bar.
  For this script run you should install Linux::Inotify2 perl 
  module.
 
-== Install ==
+== REQUIRMENTS: 
+
+* perl and nonstandart perl modules:
+	* GetOpt::Long
+	* Linux::Inotify2
+* dzen2
+
+== INSTALL:
 
 1. Copy this tree to .dzen2/nagios
 
