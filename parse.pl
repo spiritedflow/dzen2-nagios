@@ -18,16 +18,31 @@
 # using procmail or similar tool
 
 use strict;
+use Getopt::Long;
+use Config::Auto;
 
-my $spool_dir = $ENV{'HOME'}.'/.dzen2/nagios/spool';
-my $notify_script = $ENV{'HOME'}.'/.dzen2/nagios/notify.pl';
-
+my $base = $ENV{'HOME'}.'/.dzen2/nagios';
 my ($host, $service, $state);
 
 sub set_service_state;
 sub set_host_state;
 
 # [ CODE ]
+
+# Read cmdline arguments
+GetOptions(
+	   "base|b=s" => \$base,
+	    ) or die "unknown params";
+
+# Read config and load localmodule
+my $cfg = Config::Auto::parse ($base.'/config', format => 'ini');
+#require $base.'/module/common.pm';
+
+# Init common variables
+my $spool_dir = $base.'/spool';
+my $notify_script = $base.'/notify.pl';
+
+# Parse message
 while (my $line = <STDIN>) {
 	chomp $line;
 
@@ -85,6 +100,7 @@ sub notify {
 	my ($type, $message) = @_;
 	
 	defined $notify_script and -x $notify_script or return 1;
+	defined $cfg->{'parser'}{'notify'} or return 0;
 	
 	unless (fork) {
 		exec $notify_script, '--type', $type, '--message', $message;
