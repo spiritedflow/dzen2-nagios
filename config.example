@@ -24,14 +24,6 @@ warning_fg = black
 critical_bg = red
 critical_fg = white
 
-[ paths ]
-# Dir for storing Nagios status
-spool = ~/.dzen2/nagios/spool
-
-# File for storing current DISPLAY
-display = ~/.dzen2/nagios/run/display
-
-
 [ tools ]
 # Path to dzen2
 dzen2 = /usr/bin/dzen2
