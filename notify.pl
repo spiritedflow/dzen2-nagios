@@ -16,23 +16,44 @@
 
 use strict;
 use Getopt::Long;
+use Config::Auto;
 
-my $dzen2='/usr/bin/dzen2';
-my $display_file=$ENV{'HOME'}.'/.dzen2/nagios/run/display';
+my $base = $ENV{'HOME'}.'/.dzen2/nagios';
 
-my ($type, $message);
+my $message;
+my $type = 'ok';
+my ($font, $sleep, @pos);
+my %colors;
 
-my %colors = ( 
-	'ok' => {-bg => 'green', -fg => 'black'},
-	'warning' => {-bg => 'yellow', -fg => 'black'},
-	'critical' => {-bg => 'red', -fg => 'white'},
-	);
-	
-my @pos = ('-x', 724, '-w', 300, '-h', 19, '-y', 1);
-my $sleep = 10;
-my $font='-xos4-terminus-medium-*-normal-*-14-*-*-*-*-*-*-*';
 
 # [ CODE ]
+
+# Parse cmdline args
+GetOptions(
+	   "type|t=s" => \$type,
+	   "message|m=s" => \$message,
+	   "sleep|s=s" => \$sleep,
+	   "font|f=s" => \$font,
+	   "base|b=s" => \$base,
+	    ) or die "unknown params";
+
+# Read config and load localmodule
+my $cfg = Config::Auto::parse ($base.'/config', format => 'ini');
+#require $base.'/module/common.pm';
+
+# Init common variables
+my $display_file = $base.'/run/display';
+	
+@pos = split /\s+/, $cfg->{'notify'}{'pos'};
+$sleep ||= $cfg->{'notify'}{'sleep'};
+$font ||= $cfg->{'notify'}{'font'};;
+$colors{$_} = { -bg => $cfg->{'notify'}{$_.'_bg'},
+				-fg => $cfg->{'notify'}{$_.'_fg'}}
+		foreach (qw(ok warning critical));
+
+# Check passed params
+defined $message or die "Undefined message, use --massage, Luke";
+defined $colors{$type} or die "Unknown type. Allowed: ok, warning, critical";
 
 # Found wich display to use
 # If there is no DISPLAY var in environment,
@@ -48,21 +69,8 @@ unless ($ENV{'DISPLAY'}) {
 	}
 }
 
-# Parse cmdline args
-GetOptions(
-	   "type|t=s" => \$type,
-	   "message|m=s" => \$message,
-	   "sleep|s=s" => \$sleep,
-	   "font|f=s" => \$font,
-	    ) or die "unknown params";
-
-# Check passed params
-defined $message or die "Undefined message, use --massage, Luke";
-defined $type and defined $colors{$type} or $type = 'ok';
-
-
 # Open dzen2
-open DZEN, '|-', $dzen2, 
+open DZEN, '|-', $cfg->{'tools'}{'dzen2'},
 			'-p', $sleep, @pos, 
 			'-fg', $colors{$type}{-fg}, 
 			'-bg', $colors{$type}{-bg},
