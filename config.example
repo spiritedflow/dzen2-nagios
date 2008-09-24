@@ -6,6 +6,8 @@ pos = -x 500 -w 150 -y 749
 font = -xos4-terminus-medium-*-normal-*-14-*-*-*-*-*-*-*
 fg = gray
 
+ok_str = Nagios is OK
+
 [ parser ]
 # Is parser should notify when event occur
 notify=yes

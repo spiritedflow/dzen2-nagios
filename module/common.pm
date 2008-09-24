@@ -19,7 +19,7 @@ sub colorize {
 #  H: <DOWN>/<UNREACHABLE> S: <CRITICAL>/<WARNING>/<UNKNOWN>
 sub format_status {
 	my $status = shift;
-	$status->{'TOTAL'} or return "Nagios is OK\n";
+	$status->{'TOTAL'} or return '';
 
 	return sprintf ("H:%s/%s S:%s/%s/%s %s\n",
 					colorize ($status->{'HOST'}{'DOWN'}, 'red'),

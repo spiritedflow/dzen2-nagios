@@ -73,7 +73,7 @@ while () {
 	my $str = &common::format_status ($status);
 	
 	unless ($dump) {
-		print $dzen_fd $str;
+		print $dzen_fd ($str || $cfg->{'daemon'}{'ok_str'}."\n");
 	} else {
 		open ST, '>', $dump_file or die "can not open dump_file: $!";
 		print ST $str;
