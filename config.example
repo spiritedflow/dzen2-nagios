@@ -1,0 +1,37 @@
+[ daemon ]
+# Position of standalone daemon statusbar
+pos = -x 500 -w 150 -y 749
+
+# Font and colors
+font = -xos4-terminus-medium-*-normal-*-14-*-*-*-*-*-*-*
+fg = gray
+
+
+
+[ notify ]
+# Position of notify popup
+pos = -x 724 -w 300 -h 19 -y 1
+
+# Sleep 10 seconds before disapear
+sleep = 10
+
+# Font and colors
+font = -xos4-terminus-medium-*-normal-*-14-*-*-*-*-*-*-*
+ok_bg = green
+ok_fg = black
+warning_bg = yellow
+warning_fg = black
+critical_bg = red
+critical_fg = white
+
+[ paths ]
+# Dir for storing Nagios status
+spool = ~/.dzen2/nagios/spool
+
+# File for storing current DISPLAY
+display = ~/.dzen2/nagios/run/display
+
+
+[ tools ]
+# Path to dzen2
+dzen2 = /usr/bin/dzen2
