@@ -1,27 +1,27 @@
 == DESCRIPTION:
 
-This bunch of scripts are for analizing emails of Nagios
-and for notifying of the events using popup dialogs
-and dzen2 status bar.
+This bunch of scripts are for analizing emails from Nagios.
+While letters comes, the scripts will store events in spool
+directory and notify you using popup messages and statusbar.
 
 == SCRIPTS:
 
 * parser.pl:
  Is for reading and parsing emails from Nagios.
  Call it from procmail or similar and it will save new event 
- in the status.
+ in the spool directory, then notify your using notify.pl
+ script.
 
 * notify.pl:
  Shows red/green/yellow popup when new event come. Is called 
- by parser.pl
+ by parser.pl.
  
 * daemon.pl:
- Shows current status of events using permanent dzen2 statusbar.
- For this script run you should install Linux::Inotify2 perl 
- module.
+ Scans spool and shows current events using permanent dzen2 
+ statusbar or just write it to run/status file.
 
 * get_status.pl
- Just scans spoo directory and returns formated status if there
+ Just scans spool directory and returns formated status if there
  are events and empty string otherwise
 
 == REQUIRMENTS: 
