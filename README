@@ -25,6 +25,7 @@ and dzen2 status bar.
 * perl and nonstandart perl modules:
 	* GetOpt::Long
 	* Linux::Inotify2
+	* Config::Auto
 * dzen2
 
 == INSTALL:
