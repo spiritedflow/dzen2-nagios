@@ -18,14 +18,10 @@ use strict;
 use IO::Handle;
 use File::Basename;
 use Linux::Inotify2;
+use Getopt::Long;
+use Config::Auto;
 
-my $spool_dir = $ENV{'HOME'}.'/.dzen2/nagios/spool';
-my $dzen2='/usr/bin/dzen2';
-my $display_file=$ENV{'HOME'}.'/.dzen2/nagios/run/display';
-
-my $font='-xos4-terminus-medium-*-normal-*-14-*-*-*-*-*-*-*';
-my @pos = ('-x', 500, '-w', 150, '-y', 749);
-
+my $base = $ENV{'HOME'}.'/.dzen2/nagios';
 our %status = ();
 
 sub format_status; 
@@ -33,19 +29,38 @@ sub refresh_status;
 
 # [ CODE ]
 
+# Read cmdline arguments
+GetOptions(
+	   "base|b=s" => \$base,
+	    ) or die "unknown params";
+
+# Read config and load localmodule
+my $cfg = Config::Auto::parse ($base.'/config', format => 'ini');
+#require $base.'/module/common.pm';
+
+# Init common variables
+my $spool_dir = $base.'/spool';
+my $display_file = $base.'/run/display';
+
+my $font = $cfg->{'daemon'}{'font'};
+my @pos = split /\s+/, $cfg->{'daemon'}{'pos'};
+my $fg_color = $cfg->{'daemon'}{'fg'};
+
+
 # Open Dzen2 process
 our $dzen_fd;
-open $dzen_fd, '|-', $dzen2, '-p', '-u',
+open $dzen_fd, '|-', $cfg->{'tools'}{'dzen2'},
+			'-p', '-u',
 			'-ta', 'l',
 			'-fn', $font,
-#			'-bg', 'black', '-fg', 'white',
+			'-fg', $fg_color,
 			@pos
 			or die "can not fork dzen2";
 $dzen_fd->autoflush(1);
 
 # Initialize inotify and make it watching for $spool_dir
 my $inotify = new Linux::Inotify2
-		or die "Unable to create new inotify object: $!" ;
+	or die "Unable to create new inotify object: $!" ;
 
 $inotify->watch ($spool_dir, IN_MODIFY | IN_CREATE | IN_DELETE)
     or die "watch creation failed" ;
@@ -75,7 +90,7 @@ sub colorize {
 	
 	defined $n and $n > 0 or return '0';
 	
-	return "^fg($color)$n^fg(gray)";
+	return "^fg($color)$n^fg()";
 }
 
 # format_status
@@ -128,6 +143,7 @@ sub refresh_status {
 		# read state
 		open F, '<', $file or next;
 		my $state = <F>;
+		defined $state or next;
 		chomp $state;
 		close F;
 
