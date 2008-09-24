@@ -20,6 +20,10 @@ and dzen2 status bar.
  For this script run you should install Linux::Inotify2 perl 
  module.
 
+* get_status.pl
+ Just scans spoo directory and returns formated status if there
+ are events and empty string otherwise
+
 == REQUIRMENTS: 
 
 * perl and nonstandart perl modules:
@@ -30,13 +34,26 @@ and dzen2 status bar.
 
 == INSTALL:
 
-1. Copy this tree to .dzen2/nagios
+=== Base installation:
 
-2. Run daemon.pl at session startup
+1. Copy this tree to .dzen2/nagios. If you decide to 
+use another dir, than do not forget to pass --base
+param to every script.
 
-3. Make parser.pl reads letters from Nagios. 
+2. Copy config.example to config. Edit it if you want.
 
-  Ex. for procmail: 
+You can check is all setted up correctly by running:
+ 
+ cat test/h-down.msg | ./parser.pl
+ and after a while
+ cat test/h-up.msg | ./parser.pl
+
+You should see red and green popups and in directory spool
+a file should be created and removed.
+
+=== Integrate it with your mail reader:
+
+Ex. for procmail: 
 	:0:
 	* ^From:.nagios@example.com
 	{
@@ -49,3 +66,23 @@ and dzen2 status bar.
 		| $HOME/.dzen2/nagios/parse.pl
 	}
 
+
+=== Integrate it with dzen2: 
+
+There is three ways to do this: 
+
+I. daemon.pl with standalone dzen2 statusbar (if you haven't
+your own dzen2 statusbar) 
+
+Edit section [daemon] in config and run daemon.pl 
+at session startup
+
+II. daemon.pl without own statusbar. 
+
+Run daemon.pl --dump at session startup, then
+read ~/.dzen2/nagios/run/status in your statusbar script.
+
+III. run get_status.pl in your statusbar script. 
+
+It's simple but more expensive way, because it does not use 
+inotify and polls spool dir every time.
