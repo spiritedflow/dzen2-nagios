@@ -1,0 +1,43 @@
+== About == 
+
+This bunch of scripts are for analizing emails of Nagios
+and for notifying of the events using popup dialogs
+and dzen2 status bar.
+
+== Scripts ==
+
+* parser.pl:
+ Is for reading and parsing emails from Nagios.
+ Call it from procmail or similar and it will save new event 
+ in the status.
+
+* notify.pl:
+ Shows red/green/yellow popup when new event come. Is called 
+ by parser.pl
+ 
+* daemon.pl:
+ Shows current status of events using permanent dzen2 statusbar.
+ For this script run you should install Linux::Inotify2 perl 
+ module.
+
+== Install ==
+
+1. Copy this tree to .dzen2/nagios
+
+2. Run daemon.pl at session startup
+
+3. Make parser.pl reads letters from Nagios. 
+
+  Ex. for procmail: 
+	:0:
+	* ^From:.nagios@example.com
+	{
+		# Firstly copy to .Nagios/ maildir (or mailbox)
+		:0 c
+		$MAILDIR/.Nagios/
+			
+		# Then pipe to script:
+		:0
+		| $HOME/.dzen2/nagios/parse.pl
+	}
+
