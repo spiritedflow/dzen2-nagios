@@ -21,6 +21,8 @@ use Getopt::Long;
 use Config::Auto;
 
 my $base = $ENV{'HOME'}.'/.dzen2/nagios';
+my $dump = 0;
+my $dzen_fd;
 
 sub format_status; 
 sub refresh_status;
@@ -30,6 +32,7 @@ sub refresh_status;
 # Read cmdline arguments
 GetOptions(
 	   "base|b=s" => \$base,
+	   "dump|d" => \$dump,
 	    ) or die "unknown params";
 
 # Read config and load localmodule
@@ -39,22 +42,13 @@ require $base.'/module/common.pm';
 # Init common variables
 my $spool_dir = $base.'/spool';
 my $display_file = $base.'/run/display';
+my $dump_file = $base.'/run/status';
 
 my $font = $cfg->{'daemon'}{'font'};
 my @pos = split /\s+/, $cfg->{'daemon'}{'pos'};
 my $fg_color = $cfg->{'daemon'}{'fg'};
 
 
-# Open Dzen2 process
-our $dzen_fd;
-open $dzen_fd, '|-', $cfg->{'tools'}{'dzen2'},
-			'-p', '-u',
-			'-ta', 'l',
-			'-fn', $font,
-			'-fg', $fg_color,
-			@pos
-			or die "can not fork dzen2";
-$dzen_fd->autoflush(1);
 
 # Initialize inotify and make it watching for $spool_dir
 my $inotify = new Linux::Inotify2
@@ -63,11 +57,31 @@ my $inotify = new Linux::Inotify2
 $inotify->watch ($spool_dir, IN_MODIFY | IN_CREATE | IN_DELETE)
     or die "watch creation failed" ;
 
+unless ($dump) {
+	# Open Dzen2 process
+	open $dzen_fd, '|-', $cfg->{'tools'}{'dzen2'},
+			'-p', '-u',
+			'-ta', 'l',
+			'-fn', $font,
+			'-fg', $fg_color,
+			@pos
+			or die "can not fork dzen2";
+	$dzen_fd->autoflush(1);
+}
+
 
 # Main loop: 
 while () {
 	my $status = common::refresh_status ($spool_dir);
-	print $dzen_fd common::format_status ($status);
+	my $str = common::format_status ($status);
+	
+	unless ($dump) {
+		print $dzen_fd $str;
+	} else {
+		open ST, '>', $dump_file or die "can not open dump_file: $!";
+		print ST $str;
+		close ST;
+	}
 	
 	my @events = $inotify->read;
 	unless (@events > 0) {
