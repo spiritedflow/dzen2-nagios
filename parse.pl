@@ -103,7 +103,7 @@ sub notify {
 	defined $cfg->{'parser'}{'notify'} or return 0;
 	
 	unless (fork) {
-		exec $notify_script, '--type', $type, '--message', $message;
+		exec $notify_script, '--type', $type, '--message', $message, '--base', $base;
 	}
 	return 0;
 }
